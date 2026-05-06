@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>مولد اليوزرات الثلاثية</title>
 
 <style>
+
 body{
     margin:0;
     background:#000;
@@ -15,7 +18,7 @@ body{
 
 header{
     text-align:center;
-    padding:28px 15px 18px;
+    padding:30px 15px 20px;
 }
 
 h1{
@@ -25,9 +28,9 @@ h1{
 }
 
 .info{
-    color:#888;
+    color:#777;
     margin-top:10px;
-    font-size:15px;
+    line-height:1.7;
 }
 
 .controls{
@@ -36,38 +39,38 @@ h1{
 
 button{
     border:none;
-    border-radius:12px;
-    padding:12px;
+    border-radius:14px;
     font-weight:bold;
-    font-size:15px;
+    font-size:16px;
 }
 
 .mainBtn{
     width:100%;
     background:#ffd43b;
     color:#000;
-    font-size:19px;
-    padding:17px;
+    padding:18px;
     margin-bottom:10px;
 }
 
-.secondaryBtn{
+.nextBtn{
     width:100%;
     background:#222;
     color:#fff;
+    padding:15px;
     margin-bottom:10px;
 }
 
 .resetBtn{
     width:100%;
-    background:#3a1111;
+    background:#401414;
     color:#fff;
+    padding:15px;
 }
 
 .counter{
     text-align:center;
-    color:#777;
-    margin:12px 0;
+    color:#888;
+    margin-top:15px;
     line-height:1.8;
 }
 
@@ -78,28 +81,28 @@ button{
 .card{
     background:#111;
     border:1px solid #222;
-    border-radius:16px;
-    padding:14px;
-    margin-bottom:12px;
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:14px;
 }
 
 .username{
-    font-size:25px;
-    font-weight:bold;
-    letter-spacing:2px;
     text-align:left;
     direction:ltr;
-    color:#fff;
+    font-size:26px;
+    letter-spacing:2px;
+    font-weight:bold;
+    margin-bottom:14px;
 }
 
 .actions{
     display:flex;
     gap:8px;
-    margin-top:12px;
 }
 
 .actions button{
     flex:1;
+    padding:13px;
 }
 
 .snap{
@@ -114,77 +117,136 @@ button{
 }
 
 .copy{
-    background:#2b2b2b;
+    background:#2c2c2c;
     color:#fff;
 }
 
 .done{
-    background:#777 !important;
+    background:#666 !important;
     color:#ddd !important;
     opacity:.45;
 }
+
 </style>
 </head>
 
 <body>
 
 <header>
-    <h1>مولد اليوزرات الثلاثية</h1>
+
+    <h1>
+        مولد اليوزرات الثلاثية
+    </h1>
+
     <div class="info">
-        يبدأ من aaa بالترتيب ويحفظ مكانك وحالة كل زر
+        يبدأ من aaa بالترتيب<br>
+        يحفظ مكانك وحالة كل زر
     </div>
+
 </header>
 
 <div class="controls">
-    <button class="mainBtn" onclick="showCurrentBatch()">
+
+    <button class="mainBtn"
+    onclick="showCurrentBatch()">
+
         عرض / متابعة الدفعة الحالية
+
     </button>
 
-    <button class="secondaryBtn" onclick="newBatch()">
-        توليد الدفعة التالية 100 اسم
+    <button class="nextBtn"
+    onclick="newBatch()">
+
+        توليد 100 اسم جديدة
+
     </button>
 
-    <button class="resetBtn" onclick="resetAll()">
+    <button class="resetBtn"
+    onclick="resetAll()">
+
         تصفير والبدء من aaa
+
     </button>
 
-    <div class="counter" id="counter">
+    <div class="counter"
+    id="counter">
+
         جاهز
+
     </div>
+
 </div>
 
 <div id="list"></div>
 
 <script>
-const chars = "abcdefghijklmnopqrstuvwxyz";
 
-let currentIndex = parseInt(localStorage.getItem("tg_currentIndex") || "0");
-let currentBatch = JSON.parse(localStorage.getItem("tg_currentBatch") || "[]");
-let status = JSON.parse(localStorage.getItem("tg_status") || "{}");
+const chars =
+"abcdefghijklmnopqrstuvwxyz";
+
+let currentIndex =
+parseInt(
+localStorage.getItem("tg_currentIndex")
+|| "0"
+);
+
+let currentBatch =
+JSON.parse(
+localStorage.getItem("tg_currentBatch")
+|| "[]"
+);
+
+let status =
+JSON.parse(
+localStorage.getItem("tg_status")
+|| "{}"
+);
 
 function save(){
-    localStorage.setItem("tg_currentIndex", currentIndex);
-    localStorage.setItem("tg_currentBatch", JSON.stringify(currentBatch));
-    localStorage.setItem("tg_status", JSON.stringify(status));
+
+    localStorage.setItem(
+        "tg_currentIndex",
+        currentIndex
+    );
+
+    localStorage.setItem(
+        "tg_currentBatch",
+        JSON.stringify(currentBatch)
+    );
+
+    localStorage.setItem(
+        "tg_status",
+        JSON.stringify(status)
+    );
 }
 
 function numberToName(num){
-    const max = 26 * 26 * 26;
+
+    const max =
+    26 * 26 * 26;
 
     if(num >= max){
         return null;
     }
 
-    const a = chars[Math.floor(num / 676)];
-    const b = chars[Math.floor((num % 676) / 26)];
-    const c = chars[num % 26];
+    const a =
+    chars[Math.floor(num / 676)];
+
+    const b =
+    chars[Math.floor((num % 676) / 26)];
+
+    const c =
+    chars[num % 26];
 
     return a + b + c;
 }
 
 function showCurrentBatch(){
+
     if(currentBatch.length === 0){
+
         newBatch();
+
         return;
     }
 
@@ -192,111 +254,173 @@ function showCurrentBatch(){
 }
 
 function newBatch(){
+
     currentBatch = [];
 
     for(let i = 0; i < 100; i++){
-        const name = numberToName(currentIndex);
+
+        const name =
+        numberToName(currentIndex);
 
         if(name === null){
             break;
         }
 
         currentBatch.push(name);
+
         currentIndex++;
     }
 
     save();
+
     renderBatch();
 }
 
 function renderBatch(){
-    const list = document.getElementById("list");
+
+    const list =
+    document.getElementById("list");
+
     list.innerHTML = "";
 
-    if(currentBatch.length === 0){
-        document.getElementById("counter").innerText =
-            "ما فيه دفعة حالية. اضغط توليد الدفعة التالية.";
-        return;
-    }
+    currentBatch.forEach(username => {
 
-    currentBatch.forEach(username => createCard(username));
+        createCard(username);
 
-    document.getElementById("counter").innerText =
-        "الدفعة الحالية: " +
-        currentBatch[0] +
-        " إلى " +
-        currentBatch[currentBatch.length - 1] +
-        "\n" +
-        "المؤشر القادم: " +
-        (numberToName(currentIndex) || "انتهت كل الثلاثيات الحروفية");
+    });
+
+    document.getElementById("counter")
+    .innerText =
+
+    "الدفعة الحالية:\n" +
+
+    currentBatch[0] +
+
+    " → " +
+
+    currentBatch[
+    currentBatch.length - 1
+    ];
 }
 
 function createCard(username){
-    const list = document.getElementById("list");
+
+    const list =
+    document.getElementById("list");
 
     if(!status[username]){
+
         status[username] = {
+
             snap:false,
             tiktok:false,
             copy:false
+
         };
     }
 
-    const card = document.createElement("div");
+    const card =
+    document.createElement("div");
+
     card.className = "card";
 
     card.innerHTML = `
-        <div class="username">${username}</div>
+
+        <div class="username">
+
+            ${username}
+
+        </div>
 
         <div class="actions">
-            <button class="snap ${status[username].snap ? "done" : ""}">
-                ${status[username].snap ? "تم سناب" : "سناب"}
+
+            <button class="snap
+            ${status[username].snap ? "done" : ""}">
+
+                ${status[username].snap ?
+                "تم سناب" :
+                "سناب"}
+
             </button>
 
-            <button class="tiktok ${status[username].tiktok ? "done" : ""}">
-                ${status[username].tiktok ? "تم تيك" : "تيك توك"}
+            <button class="tiktok
+            ${status[username].tiktok ? "done" : ""}">
+
+                ${status[username].tiktok ?
+                "تم تيك" :
+                "تيك توك"}
+
             </button>
 
-            <button class="copy ${status[username].copy ? "done" : ""}">
-                ${status[username].copy ? "تم النسخ" : "نسخ"}
+            <button class="copy
+            ${status[username].copy ? "done" : ""}">
+
+                ${status[username].copy ?
+                "تم النسخ" :
+                "نسخ"}
+
             </button>
+
         </div>
+
     `;
 
-    const snapBtn = card.querySelector(".snap");
-    const tiktokBtn = card.querySelector(".tiktok");
-    const copyBtn = card.querySelector(".copy");
+    const snapBtn =
+    card.querySelector(".snap");
 
-    snapBtn.onclick = () => {
+    const tiktokBtn =
+    card.querySelector(".tiktok");
+
+    const copyBtn =
+    card.querySelector(".copy");
+
+    snapBtn.onclick = async () => {
+
+        const snapLink =
+        "https://www.snapchat.com/add/" +
+        username;
+
+        await navigator.clipboard
+        .writeText(snapLink);
+
         status[username].snap = true;
-        snapBtn.classList.add("done");
-        snapBtn.innerText = "تم سناب";
-        save();
 
-        window.open(
-            "https://www.snapchat.com/add/" + username,
-            "_blank"
-        );
+        snapBtn.classList.add("done");
+
+        snapBtn.innerText = "تم سناب";
+
+        save();
     };
 
-    tiktokBtn.onclick = () => {
-        status[username].tiktok = true;
-        tiktokBtn.classList.add("done");
-        tiktokBtn.innerText = "تم تيك";
-        save();
+    tiktokBtn.onclick = async () => {
 
-        window.open(
-            "https://www.tiktok.com/@" + username,
-            "_blank"
-        );
+        const tiktokLink =
+        "https://www.tiktok.com/@" +
+        username;
+
+        await navigator.clipboard
+        .writeText(tiktokLink);
+
+        status[username].tiktok = true;
+
+        tiktokBtn.classList.add("done");
+
+        tiktokBtn.innerText = "تم تيك";
+
+        save();
     };
 
     copyBtn.onclick = async () => {
-        await navigator.clipboard.writeText(username);
+
+        await navigator.clipboard
+        .writeText(username);
 
         status[username].copy = true;
+
         copyBtn.classList.add("done");
+
         copyBtn.innerText = "تم النسخ";
+
         save();
     };
 
@@ -304,20 +428,25 @@ function createCard(username){
 }
 
 function resetAll(){
-    if(confirm("متأكد؟ بيبدأ من aaa ويمسح كل التقدم القديم.")){
+
+    if(confirm(
+    "متأكد تبي تبدأ من aaa ؟"
+    )){
+
         currentIndex = 0;
+
         currentBatch = [];
+
         status = {};
 
-        localStorage.setItem("tg_currentIndex", "0");
-        localStorage.setItem("tg_currentBatch", "[]");
-        localStorage.setItem("tg_status", "{}");
+        save();
 
         newBatch();
     }
 }
 
 showCurrentBatch();
+
 </script>
 
 </body>
