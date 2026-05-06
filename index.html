@@ -3,324 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>مولد اليوزرات الثلاثية</title>
 
 <style>
-
-body{
-    margin:0;
-    background:#000;
-    color:#fff;
-    font-family:Arial,sans-serif;
-}
-
-header{
-    text-align:center;
-    padding:30px 20px;
-}
-
-h1{
-    margin:0;
-    color:#ffd43b;
-    font-size:38px;
-}
-
-.info{
-    color:#888;
-    margin-top:10px;
-    font-size:16px;
-}
-
-.topBtn{
-    padding:20px;
-}
-
-.generateBtn{
-    width:100%;
-    padding:18px;
-    border:none;
-    border-radius:16px;
-    background:#ffd43b;
-    color:#000;
-    font-size:20px;
-    font-weight:bold;
-}
-
-#list{
-    padding:15px;
-}
-
-.card{
-    background:#111;
-    border:1px solid #222;
-    border-radius:16px;
-    padding:16px;
-    margin-bottom:14px;
-    transition:0.2s;
-}
-
-.used{
-    opacity:0.35;
-}
-
-.top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.username{
-    font-size:24px;
-    font-weight:bold;
-    letter-spacing:2px;
-}
-
-.actions{
-    display:flex;
-    gap:8px;
-    margin-top:14px;
-}
-
-.actions button{
-    flex:1;
-    border:none;
-    border-radius:12px;
-    padding:12px;
-    font-weight:bold;
-    font-size:15px;
-}
-
-.snap{
-    background:#fffc00;
-    color:#000;
-}
-
-.tiktok{
-    background:#000;
-    color:#fff;
-    border:1px solid #444 !important;
-}
-
-.copy{
-    background:#2b2b2b;
-    color:#fff;
-}
-
-.counter{
-    text-align:center;
-    color:#777;
-    margin-top:12px;
-}
-
+body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif}
+header{text-align:center;padding:28px 15px}
+h1{margin:0;color:#ffd43b;font-size:34px}
+.info{color:#888;margin-top:10px}
+.controls{padding:15px}
+button{border:none;border-radius:12px;padding:12px;font-weight:bold;font-size:15px}
+.mainBtn{width:100%;background:#ffd43b;color:#000;font-size:19px;padding:17px;margin-bottom:10px}
+.secondaryBtn{width:100%;background:#222;color:#fff}
+.counter{text-align:center;color:#777;margin:12px}
+#list{padding:15px}
+.card{background:#111;border:1px solid #222;border-radius:16px;padding:14px;margin-bottom:12px}
+.username{font-size:24px;font-weight:bold;letter-spacing:2px;text-align:left;direction:ltr}
+.actions{display:flex;gap:8px;margin-top:12px}
+.actions button{flex:1}
+.snap{background:#fffc00;color:#000}
+.tiktok{background:#000;color:#fff;border:1px solid #444}
+.copy{background:#2b2b2b;color:#fff}
+.done{background:#777!important;color:#ddd!important;opacity:.45}
 </style>
 </head>
 
 <body>
 
 <header>
-
-    <h1>
-        مولد اليوزرات الثلاثية
-    </h1>
-
-    <div class="info">
-        يبدأ بالأسماء المرتبة ثم المركبة
-    </div>
-
+<h1>مولد اليوزرات الثلاثية</h1>
+<div class="info">يحفظ مكانك وحالة كل زر</div>
 </header>
 
-<div class="topBtn">
-
-    <button class="generateBtn"
-    onclick="generateBatch()">
-
-        توليد 100 اسم
-
-    </button>
-
-    <div class="counter"
-    id="counter">
-
-        جاهز
-
-    </div>
-
+<div class="controls">
+<button class="mainBtn" onclick="loadOrGenerate()">عرض / متابعة الدفعة الحالية</button>
+<button class="secondaryBtn" onclick="newBatch()">توليد دفعة جديدة 100 اسم</button>
+<div class="counter" id="counter">جاهز</div>
 </div>
 
 <div id="list"></div>
 
 <script>
+const chars = "abcdefghijklmnopqrstuvwxyz";
 
-const chars =
-"abcdefghijklmnopqrstuvwxyz";
+let currentIndex = parseInt(localStorage.getItem("currentIndex") || "0");
+let currentBatch = JSON.parse(localStorage.getItem("currentBatch") || "[]");
+let status = JSON.parse(localStorage.getItem("status") || "{}");
 
-let currentIndex =
-parseInt(
-localStorage.getItem("currentIndex")
-|| "0"
-);
-
-let checked =
-JSON.parse(
-localStorage.getItem("checked")
-|| "[]"
-);
+function save(){
+    localStorage.setItem("currentIndex", currentIndex);
+    localStorage.setItem("currentBatch", JSON.stringify(currentBatch));
+    localStorage.setItem("status", JSON.stringify(status));
+}
 
 function numberToName(num){
-
-    const a =
-    chars[Math.floor(num / 676) % 26];
-
-    const b =
-    chars[Math.floor(num / 26) % 26];
-
-    const c =
-    chars[num % 26];
-
+    const a = chars[Math.floor(num / 676) % 26];
+    const b = chars[Math.floor(num / 26) % 26];
+    const c = chars[num % 26];
     return a + b + c;
 }
 
-function save(){
-
-    localStorage.setItem(
-        "currentIndex",
-        currentIndex
-    );
-
-    localStorage.setItem(
-        "checked",
-        JSON.stringify(checked)
-    );
+function loadOrGenerate(){
+    if(currentBatch.length === 0){
+        newBatch();
+    }else{
+        renderBatch();
+    }
 }
 
-function generateBatch(){
+function newBatch(){
+    currentBatch = [];
 
-    const list =
-    document.getElementById("list");
-
-    list.innerHTML = "";
-
-    for(let i=0; i<100; i++){
-
-        const username =
-        numberToName(currentIndex);
-
+    for(let i = 0; i < 100; i++){
+        currentBatch.push(numberToName(currentIndex));
         currentIndex++;
-
-        createCard(username);
     }
 
-    document.getElementById(
-        "counter"
-    ).innerText =
-    "تم توليد 100 اسم";
+    save();
+    renderBatch();
+}
+
+function renderBatch(){
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    currentBatch.forEach(username => createCard(username));
+
+    document.getElementById("counter").innerText =
+        "الدفعة الحالية: " + currentBatch[0] + " إلى " + currentBatch[currentBatch.length - 1];
 
     save();
 }
 
 function createCard(username){
+    const list = document.getElementById("list");
 
-    const list =
-    document.getElementById("list");
-
-    const card =
-    document.createElement("div");
-
-    card.className = "card";
-
-    if(
-        checked.includes(username)
-    ){
-        card.classList.add("used");
+    if(!status[username]){
+        status[username] = {snap:false, tiktok:false, copy:false};
     }
 
+    const card = document.createElement("div");
+    card.className = "card";
+
     card.innerHTML = `
-
-        <div class="top">
-
-            <div class="username">
-                ${username}
-            </div>
-
-        </div>
-
+        <div class="username">${username}</div>
         <div class="actions">
-
-            <button class="snap">
-                سناب
-            </button>
-
-            <button class="tiktok">
-                تيك توك
-            </button>
-
-            <button class="copy">
-                نسخ
-            </button>
-
+            <button class="snap ${status[username].snap ? "done" : ""}">سناب</button>
+            <button class="tiktok ${status[username].tiktok ? "done" : ""}">تيك توك</button>
+            <button class="copy ${status[username].copy ? "done" : ""}">نسخ</button>
         </div>
-
     `;
 
-    const snapBtn =
-    card.querySelector(".snap");
-
-    const tiktokBtn =
-    card.querySelector(".tiktok");
-
-    const copyBtn =
-    card.querySelector(".copy");
+    const snapBtn = card.querySelector(".snap");
+    const tiktokBtn = card.querySelector(".tiktok");
+    const copyBtn = card.querySelector(".copy");
 
     snapBtn.onclick = () => {
-
-        window.open(
-        "https://www.snapchat.com/add/" +
-        username,
-        "_blank"
-        );
-
-        markUsed(username, card);
+        status[username].snap = true;
+        snapBtn.classList.add("done");
+        snapBtn.innerText = "تم سناب";
+        save();
+        window.open("https://www.snapchat.com/add/" + username, "_blank");
     };
 
     tiktokBtn.onclick = () => {
-
-        window.open(
-        "https://www.tiktok.com/@" +
-        username,
-        "_blank"
-        );
-
-        markUsed(username, card);
+        status[username].tiktok = true;
+        tiktokBtn.classList.add("done");
+        tiktokBtn.innerText = "تم تيك";
+        save();
+        window.open("https://www.tiktok.com/@" + username, "_blank");
     };
 
     copyBtn.onclick = async () => {
-
-        await navigator.clipboard
-        .writeText(username);
-
-        copyBtn.innerText =
-        "تم النسخ";
-
-        markUsed(username, card);
+        await navigator.clipboard.writeText(username);
+        status[username].copy = true;
+        copyBtn.classList.add("done");
+        copyBtn.innerText = "تم النسخ";
+        save();
     };
+
+    if(status[username].snap) snapBtn.innerText = "تم سناب";
+    if(status[username].tiktok) tiktokBtn.innerText = "تم تيك";
+    if(status[username].copy) copyBtn.innerText = "تم النسخ";
 
     list.appendChild(card);
 }
 
-function markUsed(username, card){
-
-    if(
-        !checked.includes(username)
-    ){
-        checked.push(username);
-    }
-
-    card.classList.add("used");
-
-    save();
-}
-
+loadOrGenerate();
 </script>
 
 </body>
