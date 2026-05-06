@@ -6,38 +6,151 @@
 <title>مولد اليوزرات الثلاثية</title>
 
 <style>
-body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif}
-header{text-align:center;padding:28px 15px}
-h1{margin:0;color:#ffd43b;font-size:34px}
-.info{color:#888;margin-top:10px}
-.controls{padding:15px}
-button{border:none;border-radius:12px;padding:12px;font-weight:bold;font-size:15px}
-.mainBtn{width:100%;background:#ffd43b;color:#000;font-size:19px;padding:17px;margin-bottom:10px}
-.secondaryBtn{width:100%;background:#222;color:#fff}
-.counter{text-align:center;color:#777;margin:12px}
-#list{padding:15px}
-.card{background:#111;border:1px solid #222;border-radius:16px;padding:14px;margin-bottom:12px}
-.username{font-size:24px;font-weight:bold;letter-spacing:2px;text-align:left;direction:ltr}
-.actions{display:flex;gap:8px;margin-top:12px}
-.actions button{flex:1}
-.snap{background:#fffc00;color:#000}
-.tiktok{background:#000;color:#fff;border:1px solid #444}
-.copy{background:#2b2b2b;color:#fff}
-.done{background:#777!important;color:#ddd!important;opacity:.45}
+body{
+    margin:0;
+    background:#000;
+    color:#fff;
+    font-family:Arial,sans-serif;
+}
+
+header{
+    text-align:center;
+    padding:28px 15px 18px;
+}
+
+h1{
+    margin:0;
+    color:#ffd43b;
+    font-size:32px;
+}
+
+.info{
+    color:#888;
+    margin-top:10px;
+    font-size:15px;
+}
+
+.controls{
+    padding:15px;
+}
+
+button{
+    border:none;
+    border-radius:12px;
+    padding:12px;
+    font-weight:bold;
+    font-size:15px;
+}
+
+.mainBtn{
+    width:100%;
+    background:#ffd43b;
+    color:#000;
+    font-size:19px;
+    padding:17px;
+    margin-bottom:10px;
+}
+
+.secondaryBtn{
+    width:100%;
+    background:#222;
+    color:#fff;
+    margin-bottom:10px;
+}
+
+.resetBtn{
+    width:100%;
+    background:#3a1111;
+    color:#fff;
+}
+
+.counter{
+    text-align:center;
+    color:#777;
+    margin:12px 0;
+    line-height:1.8;
+}
+
+#list{
+    padding:15px;
+}
+
+.card{
+    background:#111;
+    border:1px solid #222;
+    border-radius:16px;
+    padding:14px;
+    margin-bottom:12px;
+}
+
+.username{
+    font-size:25px;
+    font-weight:bold;
+    letter-spacing:2px;
+    text-align:left;
+    direction:ltr;
+    color:#fff;
+}
+
+.actions{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+}
+
+.actions button{
+    flex:1;
+}
+
+.snap{
+    background:#fffc00;
+    color:#000;
+}
+
+.tiktok{
+    background:#000;
+    color:#fff;
+    border:1px solid #444;
+}
+
+.copy{
+    background:#2b2b2b;
+    color:#fff;
+}
+
+.done{
+    background:#777 !important;
+    color:#ddd !important;
+    opacity:.45;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>مولد اليوزرات الثلاثية</h1>
-<div class="info">يحفظ مكانك وحالة كل زر</div>
+    <h1>مولد اليوزرات الثلاثية</h1>
+    <div class="info">
+        يبدأ من aaa بالترتيب ويحفظ مكانك وحالة كل زر
+    </div>
 </header>
 
 <div class="controls">
-<button class="mainBtn" onclick="loadOrGenerate()">عرض / متابعة الدفعة الحالية</button>
-<button class="secondaryBtn" onclick="newBatch()">توليد دفعة جديدة 100 اسم</button>
-<div class="counter" id="counter">جاهز</div>
+    <button class="mainBtn" onclick="showCurrentBatch()">
+        عرض / متابعة الدفعة الحالية
+    </button>
+
+    <button class="secondaryBtn" onclick="newBatch()">
+        توليد الدفعة التالية 100 اسم
+    </button>
+
+    <button class="resetBtn" onclick="resetAll()">
+        تصفير والبدء من aaa
+    </button>
+
+    <div class="counter" id="counter">
+        جاهز
+    </div>
 </div>
 
 <div id="list"></div>
@@ -45,36 +158,50 @@ button{border:none;border-radius:12px;padding:12px;font-weight:bold;font-size:15
 <script>
 const chars = "abcdefghijklmnopqrstuvwxyz";
 
-let currentIndex = parseInt(localStorage.getItem("currentIndex") || "0");
-let currentBatch = JSON.parse(localStorage.getItem("currentBatch") || "[]");
-let status = JSON.parse(localStorage.getItem("status") || "{}");
+let currentIndex = parseInt(localStorage.getItem("tg_currentIndex") || "0");
+let currentBatch = JSON.parse(localStorage.getItem("tg_currentBatch") || "[]");
+let status = JSON.parse(localStorage.getItem("tg_status") || "{}");
 
 function save(){
-    localStorage.setItem("currentIndex", currentIndex);
-    localStorage.setItem("currentBatch", JSON.stringify(currentBatch));
-    localStorage.setItem("status", JSON.stringify(status));
+    localStorage.setItem("tg_currentIndex", currentIndex);
+    localStorage.setItem("tg_currentBatch", JSON.stringify(currentBatch));
+    localStorage.setItem("tg_status", JSON.stringify(status));
 }
 
 function numberToName(num){
-    const a = chars[Math.floor(num / 676) % 26];
-    const b = chars[Math.floor(num / 26) % 26];
+    const max = 26 * 26 * 26;
+
+    if(num >= max){
+        return null;
+    }
+
+    const a = chars[Math.floor(num / 676)];
+    const b = chars[Math.floor((num % 676) / 26)];
     const c = chars[num % 26];
+
     return a + b + c;
 }
 
-function loadOrGenerate(){
+function showCurrentBatch(){
     if(currentBatch.length === 0){
         newBatch();
-    }else{
-        renderBatch();
+        return;
     }
+
+    renderBatch();
 }
 
 function newBatch(){
     currentBatch = [];
 
     for(let i = 0; i < 100; i++){
-        currentBatch.push(numberToName(currentIndex));
+        const name = numberToName(currentIndex);
+
+        if(name === null){
+            break;
+        }
+
+        currentBatch.push(name);
         currentIndex++;
     }
 
@@ -86,19 +213,33 @@ function renderBatch(){
     const list = document.getElementById("list");
     list.innerHTML = "";
 
+    if(currentBatch.length === 0){
+        document.getElementById("counter").innerText =
+            "ما فيه دفعة حالية. اضغط توليد الدفعة التالية.";
+        return;
+    }
+
     currentBatch.forEach(username => createCard(username));
 
     document.getElementById("counter").innerText =
-        "الدفعة الحالية: " + currentBatch[0] + " إلى " + currentBatch[currentBatch.length - 1];
-
-    save();
+        "الدفعة الحالية: " +
+        currentBatch[0] +
+        " إلى " +
+        currentBatch[currentBatch.length - 1] +
+        "\n" +
+        "المؤشر القادم: " +
+        (numberToName(currentIndex) || "انتهت كل الثلاثيات الحروفية");
 }
 
 function createCard(username){
     const list = document.getElementById("list");
 
     if(!status[username]){
-        status[username] = {snap:false, tiktok:false, copy:false};
+        status[username] = {
+            snap:false,
+            tiktok:false,
+            copy:false
+        };
     }
 
     const card = document.createElement("div");
@@ -106,10 +247,19 @@ function createCard(username){
 
     card.innerHTML = `
         <div class="username">${username}</div>
+
         <div class="actions">
-            <button class="snap ${status[username].snap ? "done" : ""}">سناب</button>
-            <button class="tiktok ${status[username].tiktok ? "done" : ""}">تيك توك</button>
-            <button class="copy ${status[username].copy ? "done" : ""}">نسخ</button>
+            <button class="snap ${status[username].snap ? "done" : ""}">
+                ${status[username].snap ? "تم سناب" : "سناب"}
+            </button>
+
+            <button class="tiktok ${status[username].tiktok ? "done" : ""}">
+                ${status[username].tiktok ? "تم تيك" : "تيك توك"}
+            </button>
+
+            <button class="copy ${status[username].copy ? "done" : ""}">
+                ${status[username].copy ? "تم النسخ" : "نسخ"}
+            </button>
         </div>
     `;
 
@@ -122,7 +272,11 @@ function createCard(username){
         snapBtn.classList.add("done");
         snapBtn.innerText = "تم سناب";
         save();
-        window.open("https://www.snapchat.com/add/" + username, "_blank");
+
+        window.open(
+            "https://www.snapchat.com/add/" + username,
+            "_blank"
+        );
     };
 
     tiktokBtn.onclick = () => {
@@ -130,25 +284,40 @@ function createCard(username){
         tiktokBtn.classList.add("done");
         tiktokBtn.innerText = "تم تيك";
         save();
-        window.open("https://www.tiktok.com/@" + username, "_blank");
+
+        window.open(
+            "https://www.tiktok.com/@" + username,
+            "_blank"
+        );
     };
 
     copyBtn.onclick = async () => {
         await navigator.clipboard.writeText(username);
+
         status[username].copy = true;
         copyBtn.classList.add("done");
         copyBtn.innerText = "تم النسخ";
         save();
     };
 
-    if(status[username].snap) snapBtn.innerText = "تم سناب";
-    if(status[username].tiktok) tiktokBtn.innerText = "تم تيك";
-    if(status[username].copy) copyBtn.innerText = "تم النسخ";
-
     list.appendChild(card);
 }
 
-loadOrGenerate();
+function resetAll(){
+    if(confirm("متأكد؟ بيبدأ من aaa ويمسح كل التقدم القديم.")){
+        currentIndex = 0;
+        currentBatch = [];
+        status = {};
+
+        localStorage.setItem("tg_currentIndex", "0");
+        localStorage.setItem("tg_currentBatch", "[]");
+        localStorage.setItem("tg_status", "{}");
+
+        newBatch();
+    }
+}
+
+showCurrentBatch();
 </script>
 
 </body>
