@@ -1,32 +1,237 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Triple Generator</title>
 
 <style>
+
 body{
-background:#000;
-color:#fff;
-font-family:Arial;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-margin:0;
+    margin:0;
+    background:#000;
+    color:white;
+    font-family:Arial;
+}
+
+header{
+    text-align:center;
+    padding:35px 20px;
 }
 
 h1{
-font-size:40px;
-color:#d4af37;
+    color:#d4af37;
+    font-size:42px;
+    margin:0;
 }
+
+.stage{
+    margin-top:10px;
+    color:#777;
+    font-size:18px;
+}
+
+.controls{
+    padding:20px;
+}
+
+button{
+    width:100%;
+    padding:18px;
+    border:none;
+    border-radius:14px;
+    background:#d4af37;
+    color:#000;
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+#names{
+    padding:15px;
+}
+
+.nameBox{
+    background:#111;
+    border:1px solid #222;
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    transition:0.2s;
+}
+
+.nameText{
+    font-size:22px;
+    letter-spacing:2px;
+}
+
+.copyBtn{
+    background:#d4af37;
+    color:#000;
+    border:none;
+    border-radius:10px;
+    padding:10px 14px;
+    font-weight:bold;
+    width:auto;
+    margin:0;
+}
+
+.used{
+    opacity:0.35;
+}
+
+.counter{
+    text-align:center;
+    color:#888;
+    margin-bottom:20px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>Triple Generator</h1>
+<header>
+    <h1>Triple Generator</h1>
+    <div class="stage" id="stageText">المرحلة: أسماء احترافية</div>
+</header>
+
+<div class="controls">
+
+    <div class="counter" id="counter">
+        0 / 100
+    </div>
+
+    <button onclick="generateNames()">
+        توليد 100 اسم
+    </button>
+
+</div>
+
+<div id="names"></div>
+
+<script>
+
+const professionalChars = "abcdefghijklmnopqrstuvwxyz";
+const advancedChars = "abcdefghijklmnopqrstuvwxyz0123456789_.";
+
+let usedNames = new Set();
+let currentStage = 1;
+
+function randomChar(chars){
+    return chars[Math.floor(Math.random() * chars.length)];
+}
+
+function createName(stage){
+
+    let chars;
+    let name = "";
+
+    if(stage === 1){
+
+        chars = professionalChars;
+
+        while(name.length < 3){
+            name += randomChar(chars);
+        }
+
+    }else{
+
+        chars = advancedChars;
+
+        while(name.length < 3){
+            name += randomChar(chars);
+        }
+    }
+
+    return name;
+}
+
+function generateUnique(stage){
+
+    let tries = 0;
+
+    while(tries < 999999){
+
+        const name = createName(stage);
+
+        if(!usedNames.has(name)){
+
+            usedNames.add(name);
+            return name;
+        }
+
+        tries++;
+    }
+
+    return null;
+}
+
+function generateNames(){
+
+    const namesContainer = document.getElementById("names");
+    namesContainer.innerHTML = "";
+
+    let generated = [];
+
+    for(let i=0; i<100; i++){
+
+        let name = generateUnique(currentStage);
+
+        if(name){
+            generated.push(name);
+        }
+    }
+
+    if(currentStage === 1 && generated.length < 100){
+
+        currentStage = 2;
+
+        document.getElementById("stageText").innerText =
+        "المرحلة: أسماء مركبة ورموز";
+
+        generateNames();
+        return;
+    }
+
+    document.getElementById("counter").innerText =
+    generated.length + " / 100";
+
+    generated.forEach(name => {
+
+        const box = document.createElement("div");
+        box.className = "nameBox";
+
+        const text = document.createElement("div");
+        text.className = "nameText";
+        text.innerText = name;
+
+        const btn = document.createElement("button");
+        btn.className = "copyBtn";
+        btn.innerText = "نسخ";
+
+        btn.onclick = () => {
+
+            navigator.clipboard.writeText(name);
+
+            box.classList.add("used");
+
+            btn.innerText = "تم النسخ";
+        };
+
+        box.appendChild(text);
+        box.appendChild(btn);
+
+        namesContainer.appendChild(box);
+
+    });
+}
+
+</script>
 
 </body>
 </html>
