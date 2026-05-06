@@ -11,83 +11,100 @@
 body{
     margin:0;
     background:#000;
-    color:white;
-    font-family:Arial;
+    color:#fff;
+    font-family:Arial,sans-serif;
 }
 
 header{
     text-align:center;
-    padding:35px 20px;
+    padding:35px 20px 15px;
 }
 
 h1{
+    margin:0;
     color:#d4af37;
     font-size:42px;
-    margin:0;
 }
 
 .stage{
     margin-top:10px;
     color:#777;
-    font-size:18px;
+    font-size:17px;
 }
 
 .controls{
-    padding:20px;
+    padding:15px;
 }
 
-button{
+.generateBtn{
     width:100%;
     padding:18px;
     border:none;
-    border-radius:14px;
+    border-radius:16px;
     background:#d4af37;
     color:#000;
     font-size:20px;
     font-weight:bold;
-    margin-bottom:15px;
+}
+
+.counter{
+    text-align:center;
+    color:#888;
+    margin-top:12px;
 }
 
 #names{
     padding:15px;
 }
 
-.nameBox{
+.card{
     background:#111;
     border:1px solid #222;
-    border-radius:12px;
+    border-radius:16px;
     padding:18px;
-    margin-bottom:12px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    margin-bottom:14px;
     transition:0.2s;
 }
 
-.nameText{
-    font-size:22px;
-    letter-spacing:2px;
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-.copyBtn{
-    background:#d4af37;
-    color:#000;
-    border:none;
-    border-radius:10px;
-    padding:10px 14px;
+.username{
+    font-size:24px;
+    letter-spacing:2px;
     font-weight:bold;
-    width:auto;
-    margin:0;
 }
 
 .used{
     opacity:0.35;
 }
 
-.counter{
-    text-align:center;
-    color:#888;
-    margin-bottom:20px;
+.actions{
+    display:flex;
+    gap:10px;
+    margin-top:14px;
+}
+
+.actions button{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:12px;
+    font-weight:bold;
+    font-size:16px;
+}
+
+.openBtn{
+    background:#fffc00;
+    color:#000;
+}
+
+.copyBtn{
+    background:#222;
+    color:#fff;
 }
 
 </style>
@@ -97,18 +114,21 @@ button{
 
 <header>
     <h1>Triple Generator</h1>
-    <div class="stage" id="stageText">المرحلة: أسماء احترافية</div>
+
+    <div class="stage" id="stageText">
+        المرحلة: أسماء احترافية
+    </div>
 </header>
 
 <div class="controls">
 
-    <div class="counter" id="counter">
-        0 / 100
-    </div>
-
-    <button onclick="generateNames()">
+    <button class="generateBtn" onclick="generateNames()">
         توليد 100 اسم
     </button>
+
+    <div class="counter" id="counter">
+        جاهز للتوليد
+    </div>
 
 </div>
 
@@ -116,119 +136,246 @@ button{
 
 <script>
 
-const professionalChars = "abcdefghijklmnopqrstuvwxyz";
-const advancedChars = "abcdefghijklmnopqrstuvwxyz0123456789_.";
+const cleanChars = "abcdefghijklmnopqrstuvwxyz";
+const mixedChars = "abcdefghijklmnopqrstuvwxyz0123456789_.";
 
-let usedNames = new Set();
-let currentStage = 1;
+let usedNames =
+JSON.parse(localStorage.getItem("usedNames") || "[]");
+
+let checkedNames =
+JSON.parse(localStorage.getItem("checkedNames") || "[]");
+
+let stage =
+Number(localStorage.getItem("stage") || "1");
+
+const namesContainer =
+document.getElementById("names");
+
+function saveData(){
+
+    localStorage.setItem(
+        "usedNames",
+        JSON.stringify(usedNames)
+    );
+
+    localStorage.setItem(
+        "checkedNames",
+        JSON.stringify(checkedNames)
+    );
+
+    localStorage.setItem(
+        "stage",
+        stage
+    );
+}
 
 function randomChar(chars){
-    return chars[Math.floor(Math.random() * chars.length)];
+
+    return chars[
+        Math.floor(Math.random() * chars.length)
+    ];
 }
 
-function createName(stage){
+function generateClean(){
 
-    let chars;
-    let name = "";
+    const patterns = [
 
-    if(stage === 1){
+        () =>
+        randomChar(cleanChars) +
+        randomChar(cleanChars) +
+        randomChar(cleanChars),
 
-        chars = professionalChars;
+        () =>
+        randomChar(cleanChars) +
+        randomChar("0123456789") +
+        randomChar(cleanChars),
 
-        while(name.length < 3){
-            name += randomChar(chars);
-        }
+        () =>
+        randomChar(cleanChars) +
+        randomChar(cleanChars) +
+        randomChar("0123456789"),
 
-    }else{
+        () =>
+        randomChar("0123456789") +
+        randomChar(cleanChars) +
+        randomChar(cleanChars)
 
-        chars = advancedChars;
+    ];
 
-        while(name.length < 3){
-            name += randomChar(chars);
+    return patterns[
+        Math.floor(Math.random() * patterns.length)
+    ]();
+}
+
+function generateMixed(){
+
+    while(true){
+
+        let name =
+        randomChar(mixedChars) +
+        randomChar(mixedChars) +
+        randomChar(mixedChars);
+
+        if(
+            !name.startsWith(".") &&
+            !name.startsWith("_") &&
+            !name.endsWith(".") &&
+            !name.endsWith("_") &&
+            !name.includes("..") &&
+            !name.includes("__")
+        ){
+            return name;
         }
     }
-
-    return name;
 }
 
-function generateUnique(stage){
+function generateUnique(){
 
-    let tries = 0;
+    let attempts = 0;
 
-    while(tries < 999999){
+    while(attempts < 999999){
 
-        const name = createName(stage);
+        let name;
 
-        if(!usedNames.has(name)){
+        if(stage === 1){
+            name = generateClean();
+        }else{
+            name = generateMixed();
+        }
 
-            usedNames.add(name);
+        if(!usedNames.includes(name)){
+
+            usedNames.push(name);
+
             return name;
         }
 
-        tries++;
+        attempts++;
     }
 
-    return null;
+    stage = 2;
+
+    saveData();
+
+    document.getElementById("stageText")
+    .innerText =
+    "المرحلة: أسماء مركبة";
+
+    return generateUnique();
 }
 
 function generateNames(){
 
-    const namesContainer = document.getElementById("names");
     namesContainer.innerHTML = "";
 
     let generated = [];
 
     for(let i=0; i<100; i++){
 
-        let name = generateUnique(currentStage);
+        generated.push(
+            generateUnique()
+        );
+    }
 
-        if(name){
-            generated.push(name);
+    saveData();
+
+    document.getElementById("counter")
+    .innerText =
+    "تم توليد 100 اسم";
+
+    render(generated);
+}
+
+function render(list){
+
+    list.forEach(name => {
+
+        const card =
+        document.createElement("div");
+
+        card.className = "card";
+
+        if(
+            checkedNames.includes(name)
+        ){
+            card.classList.add("used");
         }
-    }
 
-    if(currentStage === 1 && generated.length < 100){
+        card.innerHTML = `
 
-        currentStage = 2;
+            <div class="top">
 
-        document.getElementById("stageText").innerText =
-        "المرحلة: أسماء مركبة ورموز";
+                <div class="username">
+                    ${name}
+                </div>
 
-        generateNames();
-        return;
-    }
+            </div>
 
-    document.getElementById("counter").innerText =
-    generated.length + " / 100";
+            <div class="actions">
 
-    generated.forEach(name => {
+                <button class="openBtn">
+                    فتح سناب
+                </button>
 
-        const box = document.createElement("div");
-        box.className = "nameBox";
+                <button class="copyBtn">
+                    نسخ
+                </button>
 
-        const text = document.createElement("div");
-        text.className = "nameText";
-        text.innerText = name;
+            </div>
 
-        const btn = document.createElement("button");
-        btn.className = "copyBtn";
-        btn.innerText = "نسخ";
+        `;
 
-        btn.onclick = () => {
+        const openBtn =
+        card.querySelector(".openBtn");
 
-            navigator.clipboard.writeText(name);
+        const copyBtn =
+        card.querySelector(".copyBtn");
 
-            box.classList.add("used");
+        openBtn.onclick = () => {
 
-            btn.innerText = "تم النسخ";
+            window.open(
+                "https://www.snapchat.com/add/" + name,
+                "_blank"
+            );
+
+            if(
+                !checkedNames.includes(name)
+            ){
+                checkedNames.push(name);
+            }
+
+            card.classList.add("used");
+
+            saveData();
         };
 
-        box.appendChild(text);
-        box.appendChild(btn);
+        copyBtn.onclick = async () => {
 
-        namesContainer.appendChild(box);
+            await navigator.clipboard.writeText(name);
+
+            if(
+                !checkedNames.includes(name)
+            ){
+                checkedNames.push(name);
+            }
+
+            card.classList.add("used");
+
+            copyBtn.innerText = "تم النسخ";
+
+            saveData();
+        };
+
+        namesContainer.appendChild(card);
 
     });
+}
+
+if(stage === 2){
+
+    document.getElementById("stageText")
+    .innerText =
+    "المرحلة: أسماء مركبة";
 }
 
 </script>
