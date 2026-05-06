@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Triple Generator</title>
+<title>مولد اليوزرات الثلاثية</title>
 
 <style>
 
@@ -17,23 +17,23 @@ body{
 
 header{
     text-align:center;
-    padding:35px 20px 15px;
+    padding:30px 20px;
 }
 
 h1{
     margin:0;
-    color:#d4af37;
-    font-size:42px;
+    color:#ffd43b;
+    font-size:38px;
 }
 
-.stage{
+.info{
+    color:#888;
     margin-top:10px;
-    color:#777;
-    font-size:17px;
+    font-size:16px;
 }
 
-.controls{
-    padding:15px;
+.topBtn{
+    padding:20px;
 }
 
 .generateBtn{
@@ -41,19 +41,13 @@ h1{
     padding:18px;
     border:none;
     border-radius:16px;
-    background:#d4af37;
+    background:#ffd43b;
     color:#000;
     font-size:20px;
     font-weight:bold;
 }
 
-.counter{
-    text-align:center;
-    color:#888;
-    margin-top:12px;
-}
-
-#names{
+#list{
     padding:15px;
 }
 
@@ -61,9 +55,13 @@ h1{
     background:#111;
     border:1px solid #222;
     border-radius:16px;
-    padding:18px;
+    padding:16px;
     margin-bottom:14px;
     transition:0.2s;
+}
+
+.used{
+    opacity:0.35;
 }
 
 .top{
@@ -74,17 +72,13 @@ h1{
 
 .username{
     font-size:24px;
-    letter-spacing:2px;
     font-weight:bold;
-}
-
-.used{
-    opacity:0.35;
+    letter-spacing:2px;
 }
 
 .actions{
     display:flex;
-    gap:10px;
+    gap:8px;
     margin-top:14px;
 }
 
@@ -94,17 +88,29 @@ h1{
     border-radius:12px;
     padding:12px;
     font-weight:bold;
-    font-size:16px;
+    font-size:15px;
 }
 
-.openBtn{
+.snap{
     background:#fffc00;
     color:#000;
 }
 
-.copyBtn{
-    background:#222;
+.tiktok{
+    background:#000;
     color:#fff;
+    border:1px solid #444 !important;
+}
+
+.copy{
+    background:#2b2b2b;
+    color:#fff;
+}
+
+.counter{
+    text-align:center;
+    color:#777;
+    margin-top:12px;
 }
 
 </style>
@@ -113,269 +119,206 @@ h1{
 <body>
 
 <header>
-    <h1>Triple Generator</h1>
 
-    <div class="stage" id="stageText">
-        المرحلة: أسماء احترافية
+    <h1>
+        مولد اليوزرات الثلاثية
+    </h1>
+
+    <div class="info">
+        يبدأ بالأسماء المرتبة ثم المركبة
     </div>
+
 </header>
 
-<div class="controls">
+<div class="topBtn">
 
-    <button class="generateBtn" onclick="generateNames()">
+    <button class="generateBtn"
+    onclick="generateBatch()">
+
         توليد 100 اسم
+
     </button>
 
-    <div class="counter" id="counter">
-        جاهز للتوليد
+    <div class="counter"
+    id="counter">
+
+        جاهز
+
     </div>
 
 </div>
 
-<div id="names"></div>
+<div id="list"></div>
 
 <script>
 
-const cleanChars = "abcdefghijklmnopqrstuvwxyz";
-const mixedChars = "abcdefghijklmnopqrstuvwxyz0123456789_.";
+const chars =
+"abcdefghijklmnopqrstuvwxyz";
 
-let usedNames =
-JSON.parse(localStorage.getItem("usedNames") || "[]");
+let currentIndex =
+parseInt(
+localStorage.getItem("currentIndex")
+|| "0"
+);
 
-let checkedNames =
-JSON.parse(localStorage.getItem("checkedNames") || "[]");
+let checked =
+JSON.parse(
+localStorage.getItem("checked")
+|| "[]"
+);
 
-let stage =
-Number(localStorage.getItem("stage") || "1");
+function numberToName(num){
 
-const namesContainer =
-document.getElementById("names");
+    const a =
+    chars[Math.floor(num / 676) % 26];
 
-function saveData(){
+    const b =
+    chars[Math.floor(num / 26) % 26];
+
+    const c =
+    chars[num % 26];
+
+    return a + b + c;
+}
+
+function save(){
 
     localStorage.setItem(
-        "usedNames",
-        JSON.stringify(usedNames)
+        "currentIndex",
+        currentIndex
     );
 
     localStorage.setItem(
-        "checkedNames",
-        JSON.stringify(checkedNames)
-    );
-
-    localStorage.setItem(
-        "stage",
-        stage
+        "checked",
+        JSON.stringify(checked)
     );
 }
 
-function randomChar(chars){
+function generateBatch(){
 
-    return chars[
-        Math.floor(Math.random() * chars.length)
-    ];
-}
+    const list =
+    document.getElementById("list");
 
-function generateClean(){
-
-    const patterns = [
-
-        () =>
-        randomChar(cleanChars) +
-        randomChar(cleanChars) +
-        randomChar(cleanChars),
-
-        () =>
-        randomChar(cleanChars) +
-        randomChar("0123456789") +
-        randomChar(cleanChars),
-
-        () =>
-        randomChar(cleanChars) +
-        randomChar(cleanChars) +
-        randomChar("0123456789"),
-
-        () =>
-        randomChar("0123456789") +
-        randomChar(cleanChars) +
-        randomChar(cleanChars)
-
-    ];
-
-    return patterns[
-        Math.floor(Math.random() * patterns.length)
-    ]();
-}
-
-function generateMixed(){
-
-    while(true){
-
-        let name =
-        randomChar(mixedChars) +
-        randomChar(mixedChars) +
-        randomChar(mixedChars);
-
-        if(
-            !name.startsWith(".") &&
-            !name.startsWith("_") &&
-            !name.endsWith(".") &&
-            !name.endsWith("_") &&
-            !name.includes("..") &&
-            !name.includes("__")
-        ){
-            return name;
-        }
-    }
-}
-
-function generateUnique(){
-
-    let attempts = 0;
-
-    while(attempts < 999999){
-
-        let name;
-
-        if(stage === 1){
-            name = generateClean();
-        }else{
-            name = generateMixed();
-        }
-
-        if(!usedNames.includes(name)){
-
-            usedNames.push(name);
-
-            return name;
-        }
-
-        attempts++;
-    }
-
-    stage = 2;
-
-    saveData();
-
-    document.getElementById("stageText")
-    .innerText =
-    "المرحلة: أسماء مركبة";
-
-    return generateUnique();
-}
-
-function generateNames(){
-
-    namesContainer.innerHTML = "";
-
-    let generated = [];
+    list.innerHTML = "";
 
     for(let i=0; i<100; i++){
 
-        generated.push(
-            generateUnique()
-        );
+        const username =
+        numberToName(currentIndex);
+
+        currentIndex++;
+
+        createCard(username);
     }
 
-    saveData();
-
-    document.getElementById("counter")
-    .innerText =
+    document.getElementById(
+        "counter"
+    ).innerText =
     "تم توليد 100 اسم";
 
-    render(generated);
+    save();
 }
 
-function render(list){
+function createCard(username){
 
-    list.forEach(name => {
+    const list =
+    document.getElementById("list");
 
-        const card =
-        document.createElement("div");
+    const card =
+    document.createElement("div");
 
-        card.className = "card";
+    card.className = "card";
 
-        if(
-            checkedNames.includes(name)
-        ){
-            card.classList.add("used");
-        }
+    if(
+        checked.includes(username)
+    ){
+        card.classList.add("used");
+    }
 
-        card.innerHTML = `
+    card.innerHTML = `
 
-            <div class="top">
+        <div class="top">
 
-                <div class="username">
-                    ${name}
-                </div>
-
+            <div class="username">
+                ${username}
             </div>
 
-            <div class="actions">
+        </div>
 
-                <button class="openBtn">
-                    فتح سناب
-                </button>
+        <div class="actions">
 
-                <button class="copyBtn">
-                    نسخ
-                </button>
+            <button class="snap">
+                سناب
+            </button>
 
-            </div>
+            <button class="tiktok">
+                تيك توك
+            </button>
 
-        `;
+            <button class="copy">
+                نسخ
+            </button>
 
-        const openBtn =
-        card.querySelector(".openBtn");
+        </div>
 
-        const copyBtn =
-        card.querySelector(".copyBtn");
+    `;
 
-        openBtn.onclick = () => {
+    const snapBtn =
+    card.querySelector(".snap");
 
-            window.open(
-                "https://www.snapchat.com/add/" + name,
-                "_blank"
-            );
+    const tiktokBtn =
+    card.querySelector(".tiktok");
 
-            if(
-                !checkedNames.includes(name)
-            ){
-                checkedNames.push(name);
-            }
+    const copyBtn =
+    card.querySelector(".copy");
 
-            card.classList.add("used");
+    snapBtn.onclick = () => {
 
-            saveData();
-        };
+        window.open(
+        "https://www.snapchat.com/add/" +
+        username,
+        "_blank"
+        );
 
-        copyBtn.onclick = async () => {
+        markUsed(username, card);
+    };
 
-            await navigator.clipboard.writeText(name);
+    tiktokBtn.onclick = () => {
 
-            if(
-                !checkedNames.includes(name)
-            ){
-                checkedNames.push(name);
-            }
+        window.open(
+        "https://www.tiktok.com/@" +
+        username,
+        "_blank"
+        );
 
-            card.classList.add("used");
+        markUsed(username, card);
+    };
 
-            copyBtn.innerText = "تم النسخ";
+    copyBtn.onclick = async () => {
 
-            saveData();
-        };
+        await navigator.clipboard
+        .writeText(username);
 
-        namesContainer.appendChild(card);
+        copyBtn.innerText =
+        "تم النسخ";
 
-    });
+        markUsed(username, card);
+    };
+
+    list.appendChild(card);
 }
 
-if(stage === 2){
+function markUsed(username, card){
 
-    document.getElementById("stageText")
-    .innerText =
-    "المرحلة: أسماء مركبة";
+    if(
+        !checked.includes(username)
+    ){
+        checked.push(username);
+    }
+
+    card.classList.add("used");
+
+    save();
 }
 
 </script>
