@@ -6,11 +6,34 @@
 <title>مولد اليوزرات الرباعية</title>
 
 <style>
-body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif}
-header{text-align:center;padding:30px 15px 20px}
-h1{margin:0;color:#ffd43b;font-size:32px}
-.info{color:#777;margin-top:10px;line-height:1.7}
-.controls{padding:15px}
+body{
+margin:0;
+background:#000;
+color:#fff;
+font-family:Arial,sans-serif
+}
+
+header{
+text-align:center;
+padding:30px 15px 20px
+}
+
+h1{
+margin:0;
+color:#ffd43b;
+font-size:32px
+}
+
+.info{
+color:#777;
+margin-top:10px;
+line-height:1.7
+}
+
+.controls{
+padding:15px
+}
+
 button,a{
 border:none;
 border-radius:14px;
@@ -25,7 +48,7 @@ width:100%;
 background:#ffd43b;
 color:#000;
 padding:18px;
-margin-bottom:10px;
+margin-bottom:10px
 }
 
 .nextBtn{
@@ -33,14 +56,14 @@ width:100%;
 background:#222;
 color:#fff;
 padding:15px;
-margin-bottom:10px;
+margin-bottom:10px
 }
 
 .resetBtn{
 width:100%;
 background:#401414;
 color:#fff;
-padding:15px;
+padding:15px
 }
 
 .counter{
@@ -48,11 +71,11 @@ text-align:center;
 color:#888;
 margin-top:15px;
 line-height:1.8;
-white-space:pre-line;
+white-space:pre-line
 }
 
 #list{
-padding:15px;
+padding:15px
 }
 
 .card{
@@ -60,7 +83,7 @@ background:#111;
 border:1px solid #222;
 border-radius:18px;
 padding:16px;
-margin-bottom:14px;
+margin-bottom:14px
 }
 
 .username{
@@ -69,40 +92,40 @@ direction:ltr;
 font-size:28px;
 letter-spacing:2px;
 font-weight:bold;
-margin-bottom:14px;
+margin-bottom:14px
 }
 
 .actions{
 display:flex;
-gap:8px;
+gap:8px
 }
 
 .actions a,
 .actions button{
 flex:1;
-padding:13px;
+padding:13px
 }
 
 .snap{
 background:#fffc00;
-color:#000;
+color:#000
 }
 
 .tiktok{
 background:#000;
 color:#fff;
-border:1px solid #444;
+border:1px solid #444
 }
 
 .copy{
 background:#2c2c2c;
-color:#fff;
+color:#fff
 }
 
 .done{
 background:#666!important;
 color:#ddd!important;
-opacity:.45;
+opacity:.45
 }
 </style>
 </head>
@@ -143,7 +166,9 @@ opacity:.45;
 <script>
 const chars = "abcdefghijklmnopqrstuvwxyz";
 
-let currentIndex = parseInt(localStorage.getItem("quad_currentIndex") || "0");
+let currentIndex = parseInt(
+localStorage.getItem("quad_currentIndex") || "0"
+);
 
 let currentBatch = JSON.parse(
 localStorage.getItem("quad_currentBatch") || "[]"
@@ -245,6 +270,28 @@ currentBatch[currentBatch.length - 1];
 
 }
 
+function openSnap(username){
+
+status[username].snap = true;
+
+save();
+
+window.location.href =
+"https://www.snapchat.com/add/" + username;
+
+}
+
+function openTikTok(username){
+
+status[username].tiktok = true;
+
+save();
+
+window.location.href =
+"https://www.tiktok.com/@" + username;
+
+}
+
 function createCard(username){
 
 const list = document.getElementById("list");
@@ -269,25 +316,24 @@ card.innerHTML = `
 
 <div class="actions">
 
-<a
+<button
 class="snap ${status[username].snap ? "done" : ""}"
-href="https://www.snapchat.com/add/${username}"
-target="_blank"
-rel="noopener"
+onclick="openSnap('${username}')"
 >
 ${status[username].snap ? "تم سناب" : "سناب"}
-</a>
+</button>
 
-<a
+<button
 class="tiktok ${status[username].tiktok ? "done" : ""}"
-href="https://www.tiktok.com/@${username}"
-target="_blank"
-rel="noopener"
+onclick="openTikTok('${username}')"
 >
 ${status[username].tiktok ? "تم تيك" : "تيك توك"}
-</a>
+</button>
 
-<button class="copy ${status[username].copy ? "done" : ""}">
+<button
+class="copy ${status[username].copy ? "done" : ""}"
+onclick="copyUsername('${username}', this)"
+>
 ${status[username].copy ? "تم النسخ" : "نسخ"}
 </button>
 
@@ -295,51 +341,21 @@ ${status[username].copy ? "تم النسخ" : "نسخ"}
 
 `;
 
-const snapBtn = card.querySelector(".snap");
+list.appendChild(card);
 
-const tiktokBtn = card.querySelector(".tiktok");
+}
 
-const copyBtn = card.querySelector(".copy");
-
-snapBtn.onclick = () => {
-
-status[username].snap = true;
-
-snapBtn.classList.add("done");
-
-snapBtn.innerText = "تم سناب";
-
-save();
-
-};
-
-tiktokBtn.onclick = () => {
-
-status[username].tiktok = true;
-
-tiktokBtn.classList.add("done");
-
-tiktokBtn.innerText = "تم تيك";
-
-save();
-
-};
-
-copyBtn.onclick = async () => {
+async function copyUsername(username, btn){
 
 await navigator.clipboard.writeText(username);
 
 status[username].copy = true;
 
-copyBtn.classList.add("done");
+btn.classList.add("done");
 
-copyBtn.innerText = "تم النسخ";
+btn.innerText = "تم النسخ";
 
 save();
-
-};
-
-list.appendChild(card);
 
 }
 
