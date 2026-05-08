@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مولد اليوزرات الرباعية</title>
+
+<style>
+body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif}
+header{text-align:center;padding:30px 15px 20px}
+h1{margin:0;color:#ffd43b;font-size:32px}
+.info{color:#777;margin-top:10px;line-height:1.7}
+.controls{padding:15px}
+button,a{
+border:none;
+border-radius:14px;
+font-weight:bold;
+font-size:16px;
+text-decoration:none;
+text-align:center;
+}
+
+.mainBtn{
+width:100%;
+background:#ffd43b;
+color:#000;
+padding:18px;
+margin-bottom:10px;
+}
+
+.nextBtn{
+width:100%;
+background:#222;
+color:#fff;
+padding:15px;
+margin-bottom:10px;
+}
+
+.resetBtn{
+width:100%;
+background:#401414;
+color:#fff;
+padding:15px;
+}
+
+.counter{
+text-align:center;
+color:#888;
+margin-top:15px;
+line-height:1.8;
+white-space:pre-line;
+}
+
+#list{
+padding:15px;
+}
+
+.card{
+background:#111;
+border:1px solid #222;
+border-radius:18px;
+padding:16px;
+margin-bottom:14px;
+}
+
+.username{
+text-align:left;
+direction:ltr;
+font-size:28px;
+letter-spacing:2px;
+font-weight:bold;
+margin-bottom:14px;
+}
+
+.actions{
+display:flex;
+gap:8px;
+}
+
+.actions a,
+.actions button{
+flex:1;
+padding:13px;
+}
+
+.snap{
+background:#fffc00;
+color:#000;
+}
+
+.tiktok{
+background:#000;
+color:#fff;
+border:1px solid #444;
+}
+
+.copy{
+background:#2c2c2c;
+color:#fff;
+}
+
+.done{
+background:#666!important;
+color:#ddd!important;
+opacity:.45;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>مولد اليوزرات الرباعية</h1>
+
+<div class="info">
+يبدأ من aaaa بالترتيب<br>
+يحفظ مكانك وحالة كل زر
+</div>
+</header>
+
+<div class="controls">
+
+<button class="mainBtn" onclick="showCurrentBatch()">
+عرض / متابعة الدفعة الحالية
+</button>
+
+<button class="nextBtn" onclick="newBatch()">
+توليد 100 اسم رباعي
+</button>
+
+<button class="resetBtn" onclick="resetAll()">
+تصفير والبدء من جديد
+</button>
+
+<div class="counter" id="counter">
+جاهز
+</div>
+
+</div>
+
+<div id="list"></div>
+
+<script>
+const chars = "abcdefghijklmnopqrstuvwxyz";
+
+let currentIndex = parseInt(localStorage.getItem("quad_currentIndex") || "0");
+
+let currentBatch = JSON.parse(
+localStorage.getItem("quad_currentBatch") || "[]"
+);
+
+let status = JSON.parse(
+localStorage.getItem("quad_status") || "{}"
+);
+
+function save(){
+
+localStorage.setItem(
+"quad_currentIndex",
+currentIndex
+);
+
+localStorage.setItem(
+"quad_currentBatch",
+JSON.stringify(currentBatch)
+);
+
+localStorage.setItem(
+"quad_status",
+JSON.stringify(status)
+);
+
+}
+
+function numberToName(num){
+
+const max = 26 * 26 * 26 * 26;
+
+if(num >= max) return null;
+
+const a = chars[Math.floor(num / 17576)];
+
+const b = chars[Math.floor((num % 17576) / 676)];
+
+const c = chars[Math.floor((num % 676) / 26)];
+
+const d = chars[num % 26];
+
+return a + b + c + d;
+
+}
+
+function showCurrentBatch(){
+
+if(currentBatch.length === 0){
+
+newBatch();
+return;
+
+}
+
+renderBatch();
+
+}
+
+function newBatch(){
+
+currentBatch = [];
+
+for(let i = 0; i < 100; i++){
+
+const name = numberToName(currentIndex);
+
+if(name === null) break;
+
+currentBatch.push(name);
+
+currentIndex++;
+
+}
+
+save();
+
+renderBatch();
+
+}
+
+function renderBatch(){
+
+const list = document.getElementById("list");
+
+list.innerHTML = "";
+
+currentBatch.forEach(username => {
+
+createCard(username);
+
+});
+
+document.getElementById("counter").innerText =
+"الدفعة الحالية:\n" +
+currentBatch[0] +
+" → " +
+currentBatch[currentBatch.length - 1];
+
+}
+
+function createCard(username){
+
+const list = document.getElementById("list");
+
+if(!status[username]){
+
+status[username] = {
+snap:false,
+tiktok:false,
+copy:false
+};
+
+}
+
+const card = document.createElement("div");
+
+card.className = "card";
+
+card.innerHTML = `
+
+<div class="username">${username}</div>
+
+<div class="actions">
+
+<a
+class="snap ${status[username].snap ? "done" : ""}"
+href="https://www.snapchat.com/add/${username}"
+target="_blank"
+rel="noopener"
+>
+${status[username].snap ? "تم سناب" : "سناب"}
+</a>
+
+<a
+class="tiktok ${status[username].tiktok ? "done" : ""}"
+href="https://www.tiktok.com/@${username}"
+target="_blank"
+rel="noopener"
+>
+${status[username].tiktok ? "تم تيك" : "تيك توك"}
+</a>
+
+<button class="copy ${status[username].copy ? "done" : ""}">
+${status[username].copy ? "تم النسخ" : "نسخ"}
+</button>
+
+</div>
+
+`;
+
+const snapBtn = card.querySelector(".snap");
+
+const tiktokBtn = card.querySelector(".tiktok");
+
+const copyBtn = card.querySelector(".copy");
+
+snapBtn.onclick = () => {
+
+status[username].snap = true;
+
+snapBtn.classList.add("done");
+
+snapBtn.innerText = "تم سناب";
+
+save();
+
+};
+
+tiktokBtn.onclick = () => {
+
+status[username].tiktok = true;
+
+tiktokBtn.classList.add("done");
+
+tiktokBtn.innerText = "تم تيك";
+
+save();
+
+};
+
+copyBtn.onclick = async () => {
+
+await navigator.clipboard.writeText(username);
+
+status[username].copy = true;
+
+copyBtn.classList.add("done");
+
+copyBtn.innerText = "تم النسخ";
+
+save();
+
+};
+
+list.appendChild(card);
+
+}
+
+function resetAll(){
+
+if(confirm("متأكد تبي تبدأ من aaaa ؟")){
+
+currentIndex = 0;
+
+currentBatch = [];
+
+status = {};
+
+save();
+
+newBatch();
+
+}
+
+}
+
+showCurrentBatch();
+</script>
+
+</body>
+</html>
